@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+const portToConnect = '3001'
 function Scan() {
   const [devices, setDevices] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -30,7 +31,7 @@ function Scan() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetchWithTimeout('http://localhost:3001/scan', { method: 'GET' }, 10000); // 10 seconds timeout
+      const response = await fetchWithTimeout('http://localhost:' + portToConnect + '/scan', { method: 'GET' }, 10000); // 10 seconds timeout
       console.warn(response)
       // Check if the response is an array before setting state
       setDevices(response)
