@@ -32,9 +32,10 @@ function Scan() {
     setError(null);
     try {
       const response = await fetchWithTimeout('http://localhost:' + portToConnect + '/scan', { method: 'GET' }, 10000); // 10 seconds timeout
-      console.warn(response)
+      const result = response.scanResult;
+
       // Check if the response is an array before setting state
-      setDevices(response)
+      setDevices(result)
     } catch (err) {
       setError(err.message || 'Failed to fetch devices');
     } finally {
@@ -61,7 +62,7 @@ function Scan() {
         <ul>
           {devices.map((device, index) => (
             <li key={index}>
-              {device.ip} ({device.hostnames.join(', ')})
+              {device.ip} ({device.status})
             </li>
           ))}
         </ul>
