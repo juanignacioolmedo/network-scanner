@@ -42,6 +42,7 @@ function scanNetwork() {
 // API route to scan the network
 app.get('/scan', async (req, res) => {
   try {
+    console.warn('Scanning network...');
     const devices = await scanNetwork(); // Get the list of devices
     res.json(devices); // Return the list of devices as a response
   } catch (error) {

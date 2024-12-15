@@ -1,12 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
+import App from './App'; // ESTE ES EL READ
+import Scan from './Scan'; // ESTE ES EL SCAN
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+    <h4> SCAN</h4>
+    <Scan />
+    <h4> READ</h4>
     <App />
   </React.StrictMode>
 );

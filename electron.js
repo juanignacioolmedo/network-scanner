@@ -29,12 +29,21 @@ app.whenReady().then(() => {
   });
 
   // Ejecutar el backend cuando la app de Electron inicie
-  exec('node backend/server.js', (error, stdout, stderr) => {
+  exec('node backend/server-read.js', (error, stdout, stderr) => {
     if (error) {
       console.error(`Error al iniciar el backend: ${error}`);
       return;
     }
-    console.log(`Backend iniciado: ${stdout}`);
+    console.log(`Backend Read iniciado: ${stdout}`);
+  });
+
+  // Ejecutar el backend cuando la app de Electron inicie
+  exec('node backend/server-scan.js', (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error al iniciar el backend: ${error}`);
+      return;
+    }
+    console.log(`Backend Scan iniciado: ${stdout}`);
   });
 });
 
