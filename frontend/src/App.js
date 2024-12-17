@@ -5,7 +5,7 @@ function App() {
   const [showFileContent, setShowFileContent] = useState(false);
   const [urlDeDescarga, setUrlDescarga] = useState('');
   const [dataSource, setDataSource] = useState('');
-  const [loading, setLoading] = useState(false); // Nuevo estado para el loading
+  const [loading, setLoading] = useState(false);
 
   // Function to handle timeout for the fetch request
   const fetchWithTimeout = (url, options, timeout) => {
@@ -29,7 +29,14 @@ function App() {
 
   // Function to fetch devices when the button is clicked
   const fetchDevices = async () => {
+    // Limpiar los resultados anteriores antes de comenzar el fetch
+    setServerIpAddress('');
+    setUrlDescarga('');
+    setDataSource('');
+    setShowFileContent(false);
+
     setLoading(true); // Iniciar el estado de carga
+
     try {
       const parsedData = await fetchWithTimeout('http://localhost:3002/scan', { method: 'GET' }, 10000); // 10 seconds timeout
       setShowFileContent(true);
@@ -45,7 +52,7 @@ function App() {
 
   return (
     <div>
-      <button onClick={fetchDevices} disabled={loading}> {/* Deshabilitar el botón mientras se está cargando */}
+      <button onClick={fetchDevices} disabled={loading}>
         {loading ? 'Cargando...' : 'Leer archivo de texto'}
       </button>
 
