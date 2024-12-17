@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './App.css';
 
 function App() {
   const [serverIpAddress, setServerIpAddress] = useState('');
@@ -43,10 +44,10 @@ function App() {
   if(showFileContent) {
     return (
       <div>
-        <div>
-          <div>{serverIpAddress}</div>
-          <div>{urlDeDescarga}</div>
-          <div>{dataSource}</div>
+        <div className="result-container">
+          <div className="result-item">IP Address: {serverIpAddress}</div>
+          <div className="result-item">Download URL: {urlDeDescarga}</div>
+          <div className="result-item">Data Source: {dataSource}</div>
         </div>
       </div>
     );

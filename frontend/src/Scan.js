@@ -44,20 +44,16 @@ function Scan() {
   return (
     <div>
       <h1>Network Information</h1>
-
-      {/* Button to trigger the fetch */}
       <button onClick={fetchNetworkInfo} disabled={loading}>
         {loading ? 'Fetching...' : 'Get Network Info'}
       </button>
 
-      {/* Show loading, error, or results */}
       {loading && <p>Loading network info...</p>}
-      {error && <p>Error: {error}</p>}
+      {error && <p className="error">Error: {error}</p>}
       {networkInfo.ip === '' && !loading && !error && <p>No network info found</p>}
 
-      {/* Display IP and hostname if available */}
       {!loading && !error && networkInfo.ip && (
-        <div>
+        <div className="result-container">
           <p>IP: {networkInfo.ip}</p>
           <p>Hostname: {networkInfo.hostname}</p>
         </div>
