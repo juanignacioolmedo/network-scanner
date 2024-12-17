@@ -8,10 +8,14 @@ import reportWebVitals from './reportWebVitals';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <h4> SCAN</h4>
-    <Scan />
-    <h4> READ</h4>
-    <App />
+    <div className="header-container">
+      <h1 className="header-title">SCAN</h1>
+      <Scan />
+    </div>
+    <div className="header-container">
+      <h1 className="header-title">READ</h1>
+      <App />
+    </div>
   </React.StrictMode>
 );
 
