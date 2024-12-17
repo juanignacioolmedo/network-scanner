@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import './App.css';
 
 function App() {
   const [serverIpAddress, setServerIpAddress] = useState('');
   const [showFileContent, setShowFileContent] = useState(false);
   const [urlDeDescarga, setUrlDescarga] = useState('');
   const [dataSource, setDataSource] = useState('');
+  const [loading, setLoading] = useState(false); // Nuevo estado para el loading
 
   // Function to handle timeout for the fetch request
   const fetchWithTimeout = (url, options, timeout) => {
@@ -29,6 +29,7 @@ function App() {
 
   // Function to fetch devices when the button is clicked
   const fetchDevices = async () => {
+    setLoading(true); // Iniciar el estado de carga
     try {
       const parsedData = await fetchWithTimeout('http://localhost:3002/scan', { method: 'GET' }, 10000); // 10 seconds timeout
       setShowFileContent(true);
@@ -37,28 +38,30 @@ function App() {
       setDataSource(parsedData["ENTRADA"]["DATASOURCE"]);
     } catch (err) {
       alert(err.message || 'Failed to fetch devices');
-    } 
+    } finally {
+      setLoading(false); // Detener el estado de carga después de completar la solicitud
+    }
   };
-
-  // Conditional rendering
-  if(showFileContent) {
-    return (
-      <div>
-        <div className="result-container">
-          <div className="result-item">IP Address: {serverIpAddress}</div>
-          <div className="result-item">Download URL: {urlDeDescarga}</div>
-          <div className="result-item">Data Source: {dataSource}</div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div>
-      <button onClick={fetchDevices}>Leer archivo de texto</button>
+      <button onClick={fetchDevices} disabled={loading}> {/* Deshabilitar el botón mientras se está cargando */}
+        {loading ? 'Cargando...' : 'Leer archivo de texto'}
+      </button>
+
+      {/* Mostrar el mensaje de carga si la solicitud está en proceso */}
+      {loading && <p>Cargando datos, por favor espere...</p>}
+
+      {/* Mostrar el contenido solo después de que la lectura haya terminado */}
+      {showFileContent && (
+        <div>
+          <div>{serverIpAddress}</div>
+          <div>{urlDeDescarga}</div>
+          <div>{dataSource}</div>
+        </div>
+      )}
     </div>
   );
-  
 }
 
 export default App;

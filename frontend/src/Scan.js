@@ -47,14 +47,14 @@ function Scan() {
     <div>
       <h1>Network Information</h1>
       <button onClick={fetchNetworkInfo} disabled={loading}>
-        {loading ? 'Fetching...' : 'Get Network Info'}
+        {loading ? 'Cargando...' : 'Obtener informacion de red'}
       </button>
 
-      {loading && <p>Loading network info...</p>}
+      {loading && <p>Cargando informacion de red...</p>}
       {error && <p className="error">Error: {error}</p>}
       
       {/* Muestra el mensaje solo si se ha buscado y no hay información */}
-      {searched && networkInfo.ip === '' && !loading && !error && <p>No network info found</p>}
+      {searched && networkInfo.ip === '' && !loading && !error && <p>No se encontro ninguna informacion</p>}
 
       {!loading && !error && networkInfo.ip && (
         <div className="result-container">
