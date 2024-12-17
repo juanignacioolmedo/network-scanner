@@ -1,6 +1,7 @@
+//Local Network Info
 const express = require('express');
-const { exec } = require('child_process');
 const cors = require('cors');
+const os = require('os');
 
 const app = express();
 const port = 3001;
@@ -8,60 +9,33 @@ const port = 3001;
 // Enable CORS
 app.use(cors());
 
-// Function to prettify nmap scan output
-const prettifyNmapResult = (output) => {
-  // Regular expressions to parse nmap output
-  const hostsRegex = /Nmap scan report for (\d+\.\d+\.\d+\.\d+)/g;
-  const result = [];
+// Function to get the local machine's IP address and hostname
+const getLocalInfo = () => {
+  const interfaces = os.networkInterfaces();
+  let ip = 'No disponible';
   
-  let match;
-  
-  // Match each IP address
-  while ((match = hostsRegex.exec(output)) !== null) {
-    result.push({
-      ip: match[1],
-      status: 'up' // In this case, we'll mark all hosts as "up"
+  // Buscamos la primera interfaz de red IPv4 que no sea interna
+  Object.keys(interfaces).forEach((iface) => {
+    interfaces[iface].forEach((details) => {
+      if (details.family === 'IPv4' && !details.internal) {
+        ip = details.address;
+      }
     });
-  }
-  
-  return result;
+  });
+
+  return {
+    ip,
+    hostname: os.hostname() // Obtiene el hostname del sistema
+  };
 };
 
-// Function to run the nmap command
-const runNmapScan = (subnet, callback) => {
-  exec(`nmap -sn ${subnet}`, (error, stdout, stderr) => {
-    if (error) {
-      callback(error, null);
-      return;
-    }
-    if (stderr) {
-      callback(stderr, null);
-      return;
-    }
-    // Prettify the nmap output before sending it
-    const prettifiedResult = prettifyNmapResult(stdout);
-    callback(null, prettifiedResult);
-  });
-};
-
-// Define an endpoint to trigger the nmap scan
-app.get('/scan', (req, res) => {
-  const subnet = req.query.subnet || '192.168.1.0/24';  // Default subnet is 192.168.1.0/24
-  
-  // Run the nmap scan
-  runNmapScan(subnet, (error, result) => {
-    if (error) {
-      res.status(500).json({ error: `Error executing nmap: ${error}` });
-    } else {
-      console.warn(result);
-      res.status(200).json({
-        scanResult: result,
-      });
-    }
-  });
+// Endpoint to retrieve only IP and hostname
+app.get('/local-info', (req, res) => {
+  const localInfo = getLocalInfo(); // Obtiene la IP y el hostname
+  res.status(200).json(localInfo); // Devuelve solo la IP y el hostname
 });
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Network Scanner API is running on http://localhost:${port}`);
+  console.log(`Local Network Info API is running on http://localhost:${port}`);
 });

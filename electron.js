@@ -1,7 +1,7 @@
-// electron.js
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const { exec } = require('child_process');
+const http = require('http');
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -13,13 +13,32 @@ function createWindow() {
     },
   });
 
-  win.loadURL('http://localhost:3000'); // Si estás desarrollando localmente
+  // Intenta cargar el frontend desde el servidor local
+  const checkServer = () => {
+    http.get('http://localhost:3000', (res) => {
+      if (res.statusCode === 200) {
+        win.loadURL('http://localhost:3000');
+      } else {
+        setTimeout(checkServer, 500);
+      }
+    }).on('error', () => {
+      setTimeout(checkServer, 500);
+    });
+  };
 
-  // Si tienes el frontend empaquetado, carga el HTML empaquetado
-  // win.loadFile(path.join(__dirname, 'frontend/dist/index.html'));
+  checkServer(); // Revisa si el servidor está listo
 }
 
 app.whenReady().then(() => {
+  // Inicia el servidor de desarrollo del frontend
+  exec('npm run start', { cwd: path.join(__dirname, 'frontend') }, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error al iniciar el frontend: ${error}`);
+      return;
+    }
+    console.log(`Frontend iniciado: ${stdout}`);
+  });
+
   createWindow();
 
   app.on('activate', () => {
@@ -28,22 +47,21 @@ app.whenReady().then(() => {
     }
   });
 
-  // Ejecutar el backend cuando la app de Electron inicie
+  // Ejecuta los servidores del backend
   exec('node backend/server-read.js', (error, stdout, stderr) => {
     if (error) {
-      console.error(`Error al iniciar el backend: ${error}`);
+      console.error(`Error al iniciar server-read: ${error}`);
       return;
     }
-    console.log(`Backend Read iniciado: ${stdout}`);
+    console.log(`Server-read iniciado: ${stdout}`);
   });
 
-  // Ejecutar el backend cuando la app de Electron inicie
   exec('node backend/server-scan.js', (error, stdout, stderr) => {
     if (error) {
-      console.error(`Error al iniciar el backend: ${error}`);
+      console.error(`Error al iniciar server-scan: ${error}`);
       return;
     }
-    console.log(`Backend Scan iniciado: ${stdout}`);
+    console.log(`Server-scan iniciado: ${stdout}`);
   });
 });
 

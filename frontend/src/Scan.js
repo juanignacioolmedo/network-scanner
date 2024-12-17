@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 
-const portToConnect = '3001'
+const portToConnect = '3001';
+
 function Scan() {
-  const [devices, setDevices] = useState([]);
+  const [networkInfo, setNetworkInfo] = useState({ ip: '', hostname: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -26,18 +27,15 @@ function Scan() {
       });
   };
 
-  // Function to fetch devices when the button is clicked
-  const fetchDevices = async () => {
+  // Function to fetch network information when the button is clicked
+  const fetchNetworkInfo = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetchWithTimeout('http://localhost:' + portToConnect + '/scan', { method: 'GET' }, 10000); // 10 seconds timeout
-      const result = response.scanResult;
-
-      // Check if the response is an array before setting state
-      setDevices(result)
+      const response = await fetchWithTimeout('http://localhost:' + portToConnect + '/local-info', { method: 'GET' }, 10000); // 10 seconds timeout
+      setNetworkInfo(response); // Update state with the fetched IP and hostname
     } catch (err) {
-      setError(err.message || 'Failed to fetch devices');
+      setError(err.message || 'Failed to fetch network information');
     } finally {
       setLoading(false);
     }
@@ -45,27 +43,24 @@ function Scan() {
 
   return (
     <div>
-      <h1>Network Device Scanner</h1>
+      <h1>Network Information</h1>
 
-      {/* Button to trigger the network scan */}
-      <button onClick={fetchDevices} disabled={loading}>
-        {loading ? 'Scanning...' : 'Scan Network'}
+      {/* Button to trigger the fetch */}
+      <button onClick={fetchNetworkInfo} disabled={loading}>
+        {loading ? 'Fetching...' : 'Get Network Info'}
       </button>
 
       {/* Show loading, error, or results */}
-      {loading && <p>Loading devices...</p>}
+      {loading && <p>Loading network info...</p>}
       {error && <p>Error: {error}</p>}
-      {devices.length === 0 && !loading && !error && <p>No devices found</p>}
+      {networkInfo.ip === '' && !loading && !error && <p>No network info found</p>}
 
-      {/* Display list of devices if available */}
-      {!loading && !error &&  devices.length > 0 && (
-        <ul>
-          {devices.map((device, index) => (
-            <li key={index}>
-              {device.ip} ({device.status})
-            </li>
-          ))}
-        </ul>
+      {/* Display IP and hostname if available */}
+      {!loading && !error && networkInfo.ip && (
+        <div>
+          <p>IP: {networkInfo.ip}</p>
+          <p>Hostname: {networkInfo.hostname}</p>
+        </div>
       )}
     </div>
   );
