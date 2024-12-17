@@ -6,6 +6,7 @@ function Scan() {
   const [networkInfo, setNetworkInfo] = useState({ ip: '', hostname: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [searched, setSearched] = useState(false); // Estado para verificar si se ha buscado
 
   // Function to handle timeout for the fetch request
   const fetchWithTimeout = (url, options, timeout) => {
@@ -29,6 +30,7 @@ function Scan() {
 
   // Function to fetch network information when the button is clicked
   const fetchNetworkInfo = async () => {
+    setSearched(true); // Marca que se ha hecho una búsqueda
     setLoading(true);
     setError(null);
     try {
@@ -50,7 +52,9 @@ function Scan() {
 
       {loading && <p>Loading network info...</p>}
       {error && <p className="error">Error: {error}</p>}
-      {networkInfo.ip === '' && !loading && !error && <p>No network info found</p>}
+      
+      {/* Muestra el mensaje solo si se ha buscado y no hay información */}
+      {searched && networkInfo.ip === '' && !loading && !error && <p>No network info found</p>}
 
       {!loading && !error && networkInfo.ip && (
         <div className="result-container">
