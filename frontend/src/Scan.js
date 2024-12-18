@@ -44,11 +44,13 @@ function Scan() {
   };
 
   return (
-    <div>
+    <div className='scan-container'>
       <h1>Network Information</h1>
-      <button onClick={fetchNetworkInfo} disabled={loading}>
-        {loading ? 'Cargando...' : 'Obtener informacion de red'}
-      </button>
+      <div className="buttons-container"> 
+        <button onClick={fetchNetworkInfo} disabled={loading}>
+          {loading ? 'Cargando...' : 'Obtener informacion de red'}
+        </button>
+      </div>
 
       {loading && <p>Cargando informacion de red...</p>}
       {error && <p className="error">Error: {error}</p>}
