@@ -38,7 +38,7 @@ function App() {
 
     try {
       const parsedData = await fetchWithTimeout(
-        'http://localhost:3002/scan',
+        'http://localhost:3002/read',
         { method: 'GET' },
         10000
       );
@@ -55,13 +55,34 @@ function App() {
     }
   };
 
-  const compareIps = () => {
-    if (!scanIpAddress || !dataSource || !isFileRead) {
+  const scanDevices = async () => {
+    try {
+      const parsedData = await fetchWithTimeout(
+        'http://localhost:3001/local-info',
+        { method: 'GET' },
+        10000
+      );
+      console.warn(parsedData); // Muestra el valor en la consola
+      return parsedData; // Devuelve el valor
+    } catch (err) {
+      alert(err.message || 'Failed to fetch devices');
+      throw err; // Propaga el error si ocurre
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
+  const compareIps = async () => {
+    const scanDevicesRes = await scanDevices();
+    console.warn(scanDevicesRes);
+    const ipServer = scanDevicesRes['ip'];
+    console.warn(scanIpAddress, dataSource, ipServer);
+    if (!scanIpAddress || !dataSource || !isFileRead || !ipServer) {
       alert('Primero debe obtener la información de la red y leer el archivo.');
       return;
     }
-
-    if (scanIpAddress === dataSource) {
+    if (ipServer === dataSource) {
       alert('¡Todo está bien! Las IPs coinciden.');
     } else {
       alert('Las IPs no coinciden.');

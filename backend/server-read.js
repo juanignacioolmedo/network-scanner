@@ -54,12 +54,33 @@ function formatFile(content) {
     return parsedData;
 }
 
+
+const getConfiguracionIni = async () => {
+  const url = "http://serviceairtech.com.ar/service1.asmx/getConfiguracionIni?BDCliente=TEST_473";
+  const headers = {
+    Host: "serviceairtech.com.ar", // Agrega el encabezado Host
+  };
+
+  try {
+    const response = await fetch(url, { method: "GET", headers });
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const result = await response.text(); // Usa .text() para procesar la respuesta
+    return result;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    throw error; // Lanza el error para que pueda manejarse en el nivel superior
+  }
+};
+
 // API route to scan the network
-app.get('/scan', async (req, res) => {
+app.get('/read', async (req, res) => {
   try {
     console.warn('Scanning network...');
     const fileToRead = 'files/H2O.ini'
-    const devices = await readFromFile(fileToRead); // Get the list of devices
+    const devices = await getConfiguracionIni(fileToRead); // Get the list of devices
+    console.warn(devices);
     let parsedData = formatFile(devices);
     console.warn(parsedData)
     res.json(parsedData); // Return the list of devices as a response
@@ -68,7 +89,6 @@ app.get('/scan', async (req, res) => {
     res.status(500).json({ error: 'Failed to scan network.' });
   }
 });
-
 
 // Start the server
 app.listen(port, () => {
