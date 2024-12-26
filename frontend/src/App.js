@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './App.css'; // Asegúrate de importar el archivo de estilos
+import './App.css';
 
 function App() {
   const [serverIpAddress, setServerIpAddress] = useState('');
@@ -8,7 +8,7 @@ function App() {
   const [dataSource, setDataSource] = useState('');
   const [loading, setLoading] = useState(false);
   const [scanIpAddress, setScanIpAddress] = useState('');
-  const [isFileRead, setIsFileRead] = useState(false); // Nuevo estado para verificar si el archivo fue leído
+  const [isFileRead, setIsFileRead] = useState(false);
 
   const fetchWithTimeout = (url, options, timeout) => {
     const controller = new AbortController();
@@ -16,7 +16,7 @@ function App() {
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
     return fetch(url, { ...options, signal })
-      .then(response => {
+      .then((response) => {
         clearTimeout(timeoutId);
         return response.json();
       })
@@ -37,13 +37,17 @@ function App() {
     setLoading(true);
 
     try {
-      const parsedData = await fetchWithTimeout('http://localhost:3002/scan', { method: 'GET' }, 10000); 
-      setScanIpAddress(parsedData["DESCARGAS"]["IP_SERVER"]);
-      setServerIpAddress(parsedData["DESCARGAS"]["IP_SERVER"]);
-      setUrlDescarga(parsedData["DESCARGAS"]["URL_DESCARGA"]);
-      setDataSource(parsedData["ENTRADA"]["DATASOURCE"]);
+      const parsedData = await fetchWithTimeout(
+        'http://localhost:3002/scan',
+        { method: 'GET' },
+        10000
+      );
+      setScanIpAddress(parsedData['DESCARGAS']['IP_SERVER']);
+      setServerIpAddress(parsedData['DESCARGAS']['IP_SERVER']);
+      setUrlDescarga(parsedData['DESCARGAS']['URL_DESCARGA']);
+      setDataSource(parsedData['ENTRADA']['DATASOURCE']);
       setShowFileContent(true);
-      setIsFileRead(true); // Marca el archivo como leído
+      setIsFileRead(true);
     } catch (err) {
       alert(err.message || 'Failed to fetch devices');
     } finally {
@@ -52,38 +56,48 @@ function App() {
   };
 
   const compareIps = () => {
-    // Verificar si ambas IPs están definidas y si ambas lecturas se han hecho
     if (!scanIpAddress || !dataSource || !isFileRead) {
-      alert("Primero debe obtener la información de la red y leer el archivo.");
+      alert('Primero debe obtener la información de la red y leer el archivo.');
       return;
     }
 
     if (scanIpAddress === dataSource) {
-      alert("¡Todo está bien! Las IPs coinciden.");
+      alert('¡Todo está bien! Las IPs coinciden.');
     } else {
-      alert("Las IPs no coinciden.");
+      alert('Las IPs no coinciden.');
     }
   };
 
   return (
     <div className="app-container">
-      
       <div className="buttons-container">
-        <button onClick={fetchDevices} disabled={loading}>
-          {loading ? 'Cargando...' : 'Leer archivo'}
+        <button
+          onClick={fetchDevices}
+          disabled={loading}
+          className="read-button"
+        >
+          {loading ? 'Cargando...' : '📂 Leer archivo'}
         </button>
-
-        <button onClick={compareIps} disabled={!showFileContent || !isFileRead}>
-          Comparar IPs
+        <button
+          onClick={compareIps}
+          disabled={!showFileContent || !isFileRead}
+          className="read-button"
+        >
+          ✅ Comparar IPs
         </button>
       </div>
-
       <div className="results-container">
         {showFileContent && (
           <div className="result-container">
-            <div><strong>IP del servidor:</strong> {serverIpAddress}</div>
-            <div><strong>URL de descarga:</strong> {urlDeDescarga}</div>
-            <div><strong>Datasource:</strong> {dataSource}</div>
+            <div>
+              <strong>IP del servidor:</strong> {serverIpAddress}
+            </div>
+            <div>
+              <strong>URL de descarga:</strong> {urlDeDescarga}
+            </div>
+            <div>
+              <strong>Datasource:</strong> {dataSource}
+            </div>
           </div>
         )}
       </div>
@@ -92,3 +106,4 @@ function App() {
 }
 
 export default App;
+

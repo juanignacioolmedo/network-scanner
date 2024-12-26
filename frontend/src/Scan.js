@@ -6,16 +6,15 @@ function Scan() {
   const [networkInfo, setNetworkInfo] = useState({ ip: '', hostname: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [searched, setSearched] = useState(false); // Estado para verificar si se ha buscado
+  const [searched, setSearched] = useState(false);
 
-  // Function to handle timeout for the fetch request
   const fetchWithTimeout = (url, options, timeout) => {
     const controller = new AbortController();
     const signal = controller.signal;
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
     return fetch(url, { ...options, signal })
-      .then(response => {
+      .then((response) => {
         clearTimeout(timeoutId);
         return response.json();
       })
@@ -28,14 +27,17 @@ function Scan() {
       });
   };
 
-  // Function to fetch network information when the button is clicked
   const fetchNetworkInfo = async () => {
-    setSearched(true); // Marca que se ha hecho una búsqueda
+    setSearched(true);
     setLoading(true);
     setError(null);
     try {
-      const response = await fetchWithTimeout('http://localhost:' + portToConnect + '/local-info', { method: 'GET' }, 10000); // 10 seconds timeout
-      setNetworkInfo(response); // Update state with the fetched IP and hostname
+      const response = await fetchWithTimeout(
+        `http://localhost:${portToConnect}/local-info`,
+        { method: 'GET' },
+        10000
+      );
+      setNetworkInfo(response);
     } catch (err) {
       setError(err.message || 'Failed to fetch network information');
     } finally {
@@ -44,24 +46,29 @@ function Scan() {
   };
 
   return (
-    <div className='scan-container'>
-      <h1>Network Information</h1>
-      <div className="buttons-container"> 
-        <button onClick={fetchNetworkInfo} disabled={loading}>
-          {loading ? 'Cargando...' : 'Obtener informacion de red'}
+    <div className="scan-container">
+      <div className="buttons-container">
+        <button
+          className="scan-button"
+          onClick={fetchNetworkInfo}
+          disabled={loading}
+        >
+          {loading ? 'Cargando...' : '🔍 Obtener información de red'}
         </button>
       </div>
-
-      {loading && <p>Cargando informacion de red...</p>}
+      {loading && <p>Cargando información de red...</p>}
       {error && <p className="error">Error: {error}</p>}
-      
-      {/* Muestra el mensaje solo si se ha buscado y no hay información */}
-      {searched && networkInfo.ip === '' && !loading && !error && <p>No se encontro ninguna informacion</p>}
-
+      {searched && networkInfo.ip === '' && !loading && !error && (
+        <p>No se encontró ninguna información</p>
+      )}
       {!loading && !error && networkInfo.ip && (
         <div className="result-container">
-          <p>IP: {networkInfo.ip}</p>
-          <p>Hostname: {networkInfo.hostname}</p>
+          <p>
+            <strong>IP:</strong> {networkInfo.ip}
+          </p>
+          <p>
+            <strong>Hostname:</strong> {networkInfo.hostname}
+          </p>
         </div>
       )}
     </div>

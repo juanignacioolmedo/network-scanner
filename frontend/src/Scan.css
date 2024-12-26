@@ -5,31 +5,25 @@ body {
   margin: 0;
   padding: 0;
   display: flex;
-  justify-content: center;
+  flex-direction: column; /* Cambiado para soporte en dispositivos móviles */
   align-items: center;
-  height: 100vh;
+  min-height: 100vh; /* Asegurar que cubra toda la pantalla */
 }
 
-div {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
+/* Botones generales */
 button {
-  background-color: #28a745;
-  color: white;
+  padding: 15px 30px; /* Tamaño interno más grande */
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 8px;
   border: none;
-  padding: 10px 20px;
   cursor: pointer;
-  font-size: 16px;
-  border-radius: 5px;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 button:hover {
-  background-color: #218838;
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 button:disabled {
@@ -37,24 +31,27 @@ button:disabled {
   cursor: not-allowed;
 }
 
-h1 {
-  color: #333;
-  font-size: 32px; /* Bigger header size */
-  margin-bottom: 20px;
+/* Botones específicos con íconos */
+button.scan-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #007bff;
+  color: white;
 }
 
-.result-container {
-  background-color: #fff;
-  padding: 15px;
-  border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  text-align: center; /* Center content */
+button.scan-button:hover {
+  background-color: #0056b3;
 }
 
-p {
-  font-size: 16px;
+button.read-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #28a745;
+  color: white;
 }
 
-.error {
-  color: red;
+button.read-button:hover {
+  background-color: #218838;
 }

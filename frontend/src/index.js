@@ -7,13 +7,15 @@ import Scan from './Scan'; // ESTE ES EL SCAN
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <div className="header-container">
-      <h1 className="header-title">SCAN</h1>
-      <Scan />
-    </div>
-    <div className="header-container">
-      <h1 className="header-title">READ</h1>
-      <App />
+    <div className="main-container">
+      <div className="section-container scan-section">
+        <h1 className="header-title header-title-scan">SCAN</h1>
+        <Scan />
+      </div>
+      <div className="section-container read-section">
+        <h1 className="header-title header-title-read">READ</h1>
+        <App />
+      </div>
     </div>
   </React.StrictMode>
 );
