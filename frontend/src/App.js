@@ -94,7 +94,7 @@ function App() {
   const scanDevices = async () => {
     try {
       const parsedData = await fetchWithTimeout(
-        'http://localhost:3001/local-info',
+        'http://localhost:3002/local-info',
         { method: 'GET' },
         10000
       );

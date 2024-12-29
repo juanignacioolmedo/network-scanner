@@ -48,20 +48,12 @@ app.whenReady().then(() => {
   });
 
   // Ejecuta los servidores del backend
-  exec('node backend/server-read.js', (error, stdout, stderr) => {
+  exec('node backend/server.js', (error, stdout, stderr) => {
     if (error) {
       console.error(`Error al iniciar server-read: ${error}`);
       return;
     }
     console.log(`Server-read iniciado: ${stdout}`);
-  });
-
-  exec('node backend/server-scan.js', (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Error al iniciar server-scan: ${error}`);
-      return;
-    }
-    console.log(`Server-scan iniciado: ${stdout}`);
   });
 });
 

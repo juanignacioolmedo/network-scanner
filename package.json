@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "main": "electron.js",
   "scripts": {
-    "start": "npm run dev",
     "dev": "react-scripts start",
     "build": "react-scripts build",
     "electron": "electron .",
-    "package": "electron-builder"
+    "package": "electron-builder",
+    "start-backend": "node backend/server.js",
+    "start-frontend": "react-scripts start",
+    "start": "concurrently \"npm run start-backend\" \"npm run start-frontend\""
   },
   "keywords": [],
   "author": "",
@@ -26,7 +28,7 @@
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-react": "^7.26.3",
     "babel-loader": "^9.2.1",
-    "concurrently": "^9.1.0",
+    "concurrently": "^9.1.1",
     "css-loader": "^7.1.2",
     "electron": "^22.0.0",
     "electron-builder": "^25.1.8",

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const portToConnect = '3001';
+const portToConnect = '3002';
 
 function Scan() {
   const [networkInfo, setNetworkInfo] = useState({ ip: '', hostname: '' });
