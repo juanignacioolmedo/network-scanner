@@ -15,6 +15,7 @@
     "express": "^4.21.2",
     "network-scanner": "^0.0.2",
     "node-nmap": "^4.0.0",
-    "ping": "^0.4.4"
+    "ping": "^0.4.4",
+    "xmldom": "^0.6.0"
   }
 }
