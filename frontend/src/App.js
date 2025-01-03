@@ -240,18 +240,7 @@ function App() {
             name="serverIp"
             value={serverIp}  // Usamos el valor de `serverIp`
             onChange={(e) => setServerIp(e.target.value)}
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          URL de descarga:
-          <input
-            type="text"
-            className="input-modal"
-            name="urlDownload"
-            value={urlDownload}  // Usamos el valor de `urlDownload`
-            onChange={(e) => setUrlDownload(e.target.value)}
+            readOnly
           />
         </label>
       </div>
@@ -264,6 +253,7 @@ function App() {
             name="datasource"
             value={dataSource}  // Usamos el valor de `dataSource`
             onChange={(e) => setDataSource(e.target.value)}
+            readOnly
           />
         </label>
       </div>
@@ -276,6 +266,7 @@ function App() {
             name="db"
             value={db}  // Usamos el valor de `db`
             onChange={(e) => setDB(e.target.value)}
+            readOnly
           />
         </label>
       </div>
