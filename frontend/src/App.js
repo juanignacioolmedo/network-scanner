@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import './App.css';
 
 function App() {
+  const [serverIp, setServerIp] = useState('');
+  const [urlDownload, setUrlDownload] = useState('');
+  const [dataSource, setDataSource] = useState('');
+  const [db, setDB] = useState('');
   const [serverIpAddress, setServerIpAddress] = useState('');
   const [showFileContent, setShowFileContent] = useState(false);
   const [urlDeDescarga, setUrlDescarga] = useState('');
-  const [dataSource, setDataSource] = useState('');
-  const [db, setDB] = useState('');
   const [loading, setLoading] = useState(false);
   const [scanIpAddress, setScanIpAddress] = useState('');
   const [isFileRead, setIsFileRead] = useState(false);
@@ -70,26 +72,34 @@ function App() {
     setShowFileContent(false);
     setLoading(true);
     setDB('');
-
+  
     try {
       const parsedData = await fetchWithTimeout(
         'http://localhost:3002/read-from-file',
         { method: 'GET' },
         10000
       );
-      setScanIpAddress(parsedData['DESCARGAS']['IP_SERVER']);
+      
       setServerIpAddress(parsedData['DESCARGAS']['IP_SERVER']);
       setUrlDescarga(parsedData['DESCARGAS']['URL_DESCARGA']);
       setDataSource(parsedData['ENTRADA']['DATASOURCE']);
       setDB(parsedData['ENTRADA']['BD_WEB']);
       setShowFileContent(true);
       setIsFileRead(true);
+  
+      // Aquí extraemos los valores y los guardamos en los nuevos estados
+      setServerIp(parsedData['DESCARGAS']['IP_SERVER']);
+      setUrlDownload(parsedData['DESCARGAS']['URL_DESCARGA']);
+      setDataSource(parsedData['ENTRADA']['DATASOURCE']);
+      setDB(parsedData['ENTRADA']['BD_WEB']);
+  
     } catch (err) {
       alert(err.message || 'Failed to fetch devices');
     } finally {
       setLoading(false);
     }
   };
+  
 
   const scanDevices = async () => {
     try {
@@ -134,8 +144,14 @@ function App() {
     const params = new URLSearchParams();
     params.append("BDCliente", formData.BDCliente);
     params.append("datasource", formData.datasource);
+    // Añadimos los valores extraídos del archivo h2O.ini
+    params.append("serverIp", serverIp);
+    params.append("urlDownload", urlDownload);
+    params.append("dataSource", dataSource);
+    params.append("db", db);
+  
     const url = "http://localhost:3002/proxy";
-
+  
     try {
       const response = await fetch(url, {
         method: "POST",
@@ -143,13 +159,12 @@ function App() {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: params.toString(),
-      }); 
-
+      });
+  
       if (!response.ok) {
-        
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const data = await response.text();
       console.log('Respuesta del servidor:', data);
       alert('Datos enviados con éxito.');
@@ -159,7 +174,8 @@ function App() {
     } finally {
       setModalVisible(false);
     }
-  };  
+  };
+  
 
   return (
     <div className="app-container">
@@ -212,40 +228,65 @@ function App() {
         )}
       </div>
       {modalVisible && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h2>Actualizar Configuración</h2>
-            <div>
-              <label>
-                BDCliente:
-                <input
-                  type="text"
-                  className='input-modal'
-                  name="BDCliente"
-                  value={formData.BDCliente}
-                  onChange={handleInputChange}
-                />
-              </label>
-            </div>
-            <div>
-              <label>
-                datasource:
-                <input
-                  type="text"
-                  className='input-modal'
-                  name="datasource"
-                  value={formData.datasource}
-                  onChange={handleInputChange}
-                />
-              </label>
-            </div>
-            <div>
-              <button onClick={handlePostRequest}>Enviar</button>
-              <button onClick={() => setModalVisible(false)}>Cerrar</button>
-            </div>
-          </div>
-        </div>
-      )}
+  <div className="modal-overlay">
+    <div className="modal">
+      <h2>Actualizar Configuración</h2>
+      <div>
+        <label>
+          IP del servidor:
+          <input
+            type="text"
+            className="input-modal"
+            name="serverIp"
+            value={serverIp}  // Usamos el valor de `serverIp`
+            onChange={(e) => setServerIp(e.target.value)}
+          />
+        </label>
+      </div>
+      <div>
+        <label>
+          URL de descarga:
+          <input
+            type="text"
+            className="input-modal"
+            name="urlDownload"
+            value={urlDownload}  // Usamos el valor de `urlDownload`
+            onChange={(e) => setUrlDownload(e.target.value)}
+          />
+        </label>
+      </div>
+      <div>
+        <label>
+          Datasource:
+          <input
+            type="text"
+            className="input-modal"
+            name="datasource"
+            value={dataSource}  // Usamos el valor de `dataSource`
+            onChange={(e) => setDataSource(e.target.value)}
+          />
+        </label>
+      </div>
+      <div>
+        <label>
+          Base de datos:
+          <input
+            type="text"
+            className="input-modal"
+            name="db"
+            value={db}  // Usamos el valor de `db`
+            onChange={(e) => setDB(e.target.value)}
+          />
+        </label>
+      </div>
+      <div>
+        <button onClick={handlePostRequest}>Enviar</button>
+        <button onClick={() => setModalVisible(false)}>Cerrar</button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
