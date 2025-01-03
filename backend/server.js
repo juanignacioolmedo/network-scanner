@@ -117,33 +117,36 @@ const getConfiguracionIni = async () => {
   }
 };
 
-const getPublicIP = async () => {
-  try {
-    const response = await fetch('https://api.ipify.org?format=json');
-    if (!response.ok) {
-      throw new Error('Failed to fetch public IP');
+const getPrivateIP = () => {
+  const networkInterfaces = os.networkInterfaces();
+  let privateIP = 'No disponible';
+
+  // Log para verificar las interfaces de red
+  console.log('Interfaces de red disponibles:', networkInterfaces);
+
+  for (const interfaceName in networkInterfaces) {
+    for (const network of networkInterfaces[interfaceName]) {
+      // Asegurarnos de obtener solo una IP IPv4 y que no sea la interfaz interna (127.0.0.1)
+      if (network.family === 'IPv4' && !network.internal) {
+        privateIP = network.address;
+        console.log(`IP privada encontrada en ${interfaceName}: ${privateIP}`);
+        break; // Terminamos el ciclo al encontrar la primera IP privada
+      }
     }
-    const data = await response.json();
-    return {
-      ip: data.ip,
-      hostname: os.hostname(), // Mantén el hostname local
-    };
-  } catch (error) {
-    console.error('Error fetching public IP:', error);
-    return {
-      ip: 'No disponible',
-      hostname: os.hostname(),
-    };
+    if (privateIP !== 'No disponible') break; // Si ya encontramos una IP, no seguimos buscando
   }
+
+  return privateIP;
 };
 
-
-// Endpoint to retrieve only IP and hostname
+// Endpoint para obtener la IP privada y el hostname
 app.get('/local-info', async (req, res) => {
-  const localInfo = await getPublicIP(); // Obtiene la IP y el hostname
-  console.warn(localInfo);
-  res.status(200).json(localInfo); // Devuelve solo la IP y el hostname
+  const privateIP = getPrivateIP(); // Obtiene la IP privada
+  const hostname = os.hostname(); // Obtiene el hostname
+  console.warn({ ip: privateIP, hostname }); // Log de la IP privada y el hostname
+  res.status(200).json({ ip: privateIP, hostname }); // Devuelve la IP privada y el hostname
 });
+
 
 
 // API route to scan the network
