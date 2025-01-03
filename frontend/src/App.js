@@ -2,21 +2,20 @@ import React, { useState } from 'react';
 import './App.css';
 
 function App() {
-  const [serverIp, setServerIp] = useState('');
-  const [urlDownload, setUrlDownload] = useState('');
   const [dataSource, setDataSource] = useState('');
   const [db, setDB] = useState('');
   const [serverIpAddress, setServerIpAddress] = useState('');
+
+
   const [showFileContent, setShowFileContent] = useState(false);
   const [urlDeDescarga, setUrlDescarga] = useState('');
   const [loading, setLoading] = useState(false);
   const [scanIpAddress, setScanIpAddress] = useState('');
   const [isFileRead, setIsFileRead] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [formData, setFormData] = useState({
-    BDCliente: '',
-    datasource: '',
-  });
+
+  const [extraDataSource, setExtraDataSource] = useState('');
+  const [extraDB, setExtraDB] = useState('');
 
   const fetchWithTimeout = (url, options, timeout) => {
     const controller = new AbortController();
@@ -38,13 +37,7 @@ function App() {
   };
 
   const fetchDevices = async () => {
-    setServerIpAddress('');
-    setUrlDescarga('');
-    setDataSource('');
-    setDB('');
-    setShowFileContent(false);
-    setLoading(true);
-
+    cleanValues();
     try {
       const parsedData = await fetchWithTimeout(
         'http://localhost:3002/read',
@@ -52,12 +45,7 @@ function App() {
         10000
       );
       setScanIpAddress(parsedData['DESCARGAS']['IP_SERVER']);
-      setServerIpAddress(parsedData['DESCARGAS']['IP_SERVER']);
-      setUrlDescarga(parsedData['DESCARGAS']['URL_DESCARGA']);
-      setDataSource(parsedData['ENTRADA']['DATASOURCE']);
-      setDB(parsedData['ENTRADA']['BD_WEB']);
-      setShowFileContent(true);
-      setIsFileRead(true);
+      processParsedData(parsedData)
     } catch (err) {
       alert(err.message || 'Failed to fetch devices');
     } finally {
@@ -65,34 +53,28 @@ function App() {
     }
   };
 
+  const processParsedData = (parsedData) => {
+    setServerIpAddress(parsedData['DESCARGAS']['IP_SERVER']);
+    setUrlDescarga(parsedData['DESCARGAS']['URL_DESCARGA']);
+    setDataSource(parsedData['ENTRADA']['DATASOURCE']);
+    setDB(parsedData['ENTRADA']['BD_WEB']);
+    setShowFileContent(true);
+    setIsFileRead(true);
+  };
+
   const fetchDevicesFromFile = async () => {
-    setServerIpAddress('');
-    setUrlDescarga('');
-    setDataSource('');
-    setShowFileContent(false);
-    setLoading(true);
-    setDB('');
-  
+    cleanValues();  
     try {
       const parsedData = await fetchWithTimeout(
         'http://localhost:3002/read-from-file',
         { method: 'GET' },
         10000
-      );
-      
-      setServerIpAddress(parsedData['DESCARGAS']['IP_SERVER']);
-      setUrlDescarga(parsedData['DESCARGAS']['URL_DESCARGA']);
-      setDataSource(parsedData['ENTRADA']['DATASOURCE']);
-      setDB(parsedData['ENTRADA']['BD_WEB']);
-      setShowFileContent(true);
-      setIsFileRead(true);
-  
-      // Aquí extraemos los valores y los guardamos en los nuevos estados
-      setServerIp(parsedData['DESCARGAS']['IP_SERVER']);
-      setUrlDownload(parsedData['DESCARGAS']['URL_DESCARGA']);
-      setDataSource(parsedData['ENTRADA']['DATASOURCE']);
-      setDB(parsedData['ENTRADA']['BD_WEB']);
-  
+      );      
+      processParsedData(parsedData);
+      console.warn(parsedData)
+      // New stuff
+      setExtraDataSource(parsedData['ENTRADA']['DATASOURCE'])
+      setExtraDB(parsedData['ENTRADA']['BD_WEB'])  
     } catch (err) {
       alert(err.message || 'Failed to fetch devices');
     } finally {
@@ -132,23 +114,19 @@ function App() {
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+  const cleanValues = () => {
+    setServerIpAddress('');
+    setUrlDescarga('');
+    setDataSource('');
+    setShowFileContent(false);
+    setLoading(true);
+    setDB('');
   };
 
   const handlePostRequest = async () => {
     const params = new URLSearchParams();
-    params.append("BDCliente", formData.BDCliente);
-    params.append("datasource", formData.datasource);
-    // Añadimos los valores extraídos del archivo h2O.ini
-    params.append("serverIp", serverIp);
-    params.append("urlDownload", urlDownload);
-    params.append("dataSource", dataSource);
-    params.append("db", db);
+    params.append("BDCliente", extraDB);
+    params.append("datasource", extraDataSource);
   
     const url = "http://localhost:3002/proxy";
   
@@ -230,20 +208,7 @@ function App() {
       {modalVisible && (
   <div className="modal-overlay">
     <div className="modal">
-      <h2>Actualizar Configuración</h2>
-      <div>
-        <label>
-          IP del servidor:
-          <input
-            type="text"
-            className="input-modal"
-            name="serverIp"
-            value={serverIp}  // Usamos el valor de `serverIp`
-            onChange={(e) => setServerIp(e.target.value)}
-            readOnly
-          />
-        </label>
-      </div>
+      <h2>Actualizar Configuración</h2>      
       <div>
         <label>
           Datasource:
@@ -251,22 +216,20 @@ function App() {
             type="text"
             className="input-modal"
             name="datasource"
-            value={dataSource}  // Usamos el valor de `dataSource`
-            onChange={(e) => setDataSource(e.target.value)}
-            readOnly
+            value={extraDataSource}  // Usamos el valor de `extraDataSource`
+            onChange={(e) => setExtraDataSource(e.target.value)}
           />
         </label>
       </div>
       <div>
         <label>
-          Base de datos:
+          DB:
           <input
             type="text"
             className="input-modal"
             name="db"
-            value={db}  // Usamos el valor de `db`
-            onChange={(e) => setDB(e.target.value)}
-            readOnly
+            value={extraDB}  // Usamos el valor de `extraServerIp`
+            onChange={(e) => setExtraDB(e.target.value)}
           />
         </label>
       </div>
