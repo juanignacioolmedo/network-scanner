@@ -5,17 +5,14 @@ function App() {
   const [dataSource, setDataSource] = useState('');
   const [db, setDB] = useState('');
   const [serverIpAddress, setServerIpAddress] = useState('');
-
-
   const [showFileContent, setShowFileContent] = useState(false);
   const [urlDeDescarga, setUrlDescarga] = useState('');
   const [loading, setLoading] = useState(false);
   const [scanIpAddress, setScanIpAddress] = useState('');
   const [isFileRead, setIsFileRead] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-
   const [extraDataSource, setExtraDataSource] = useState('');
-  const [extraDB, setExtraDB] = useState('');
+
 
   const fetchWithTimeout = (url, options, timeout) => {
     const controller = new AbortController();
@@ -36,16 +33,37 @@ function App() {
       });
   };
 
+   // Función para obtener la IP privada
+   const fetchPrivateIP = async () => {
+    setLoading(true);
+    try {
+      const response = await fetchWithTimeout(
+        'http://localhost:3002/local-info', // API que obtiene la IP privada
+        { method: 'GET' },
+        10000
+      );
+      setExtraDataSource(response.ip); // Usar la IP privada en vez de el datasource
+    } catch (err) {
+      alert(err.message || 'Failed to fetch private IP');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Función para obtener dispositivos
   const fetchDevices = async () => {
     cleanValues();
     try {
       const parsedData = await fetchWithTimeout(
-        'http://localhost:3002/read',
+        'http://localhost:3002/read', 
         { method: 'GET' },
         10000
       );
-      setScanIpAddress(parsedData['DESCARGAS']['IP_SERVER']);
-      processParsedData(parsedData)
+      // Procesa los datos obtenidos
+      setScanIpAddress(parsedData['DESCARGAS']['IP_SERVER']); // IP pública
+      setDB(parsedData['ENTRADA']['BD_WEB']);  // Nombre de la base de datos
+      processParsedData(parsedData);
+      await fetchPrivateIP(); // Ahora también obtiene la IP privada
     } catch (err) {
       alert(err.message || 'Failed to fetch devices');
     } finally {
@@ -64,6 +82,7 @@ function App() {
 
   const fetchDevicesFromFile = async () => {
     cleanValues();  
+    setLoading(true); // Asegúrate de marcar que la carga está en progreso
     try {
       const parsedData = await fetchWithTimeout(
         'http://localhost:3002/read-from-file',
@@ -71,10 +90,14 @@ function App() {
         10000
       );      
       processParsedData(parsedData);
-      console.warn(parsedData)
-      // New stuff
-      setExtraDataSource(parsedData['ENTRADA']['DATASOURCE'])
-      setExtraDB(parsedData['ENTRADA']['BD_WEB'])  
+      console.warn(parsedData)// Log de los datos obtenidos para revisión
+
+       // Actualiza el estado con los valores obtenidos
+      setScanIpAddress(parsedData['DESCARGAS']['IP_SERVER']);  // IP pública
+      setDB(parsedData['ENTRADA']['BD_WEB']);  // Nombre de la base de datos
+
+      // Llama a la función que obtiene la IP privada
+      await fetchPrivateIP(); 
     } catch (err) {
       alert(err.message || 'Failed to fetch devices');
     } finally {
@@ -125,8 +148,8 @@ function App() {
 
   const handlePostRequest = async () => {
     const params = new URLSearchParams();
-    params.append("BDCliente", extraDB);
-    params.append("datasource", extraDataSource);
+    params.append("BDCliente", db);  // Usar `db` para enviar la base de datos
+    params.append("datasource", extraDataSource); // Usar `extraDataSource` para enviar la IP
   
     const url = "http://localhost:3002/proxy";
   
@@ -216,8 +239,8 @@ function App() {
             type="text"
             className="input-modal"
             name="datasource"
-            value={extraDataSource}  // Usamos el valor de `extraDataSource`
-            onChange={(e) => setExtraDataSource(e.target.value)}
+            value={extraDataSource}  // Ahora `extraDataSource` contiene la IP privada
+            readOnly
           />
         </label>
       </div>
@@ -228,8 +251,8 @@ function App() {
             type="text"
             className="input-modal"
             name="db"
-            value={extraDB}  // Usamos el valor de `extraServerIp`
-            onChange={(e) => setExtraDB(e.target.value)}
+            value={db}  // Usamos el valor de `extraDB` que se obtiene de la base de datos
+            readOnly
           />
         </label>
       </div>
