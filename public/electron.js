@@ -3,6 +3,8 @@ const path = require('path');
 const { exec } = require('child_process');
 const http = require('http');
 const fs = require('fs');
+//const serve = require('serve');
+const express = require('express');  // Import express
 const net = require('net'); // Required for checking port availability
 
 let frontendStarted = false;
@@ -23,52 +25,6 @@ function isPortInUse(port, callback) {
       callback(false); // Port is available
     })
     .listen(port);
-}
-
-// Function to create the main window
-function createWindow() {
-  const win = new BrowserWindow({
-    width: 800,
-    height: 600,
-    webPreferences: {
-      nodeIntegration: true, // Optional, depends on your use case
-    },
-  });
-
-  // In development, load from localhost:3000
-  if (process.env.NODE_ENV === 'development') {
-    if (!frontendStarted) {
-      exec('npm run start-frontend', (error, stdout, stderr) => {
-        if (error) {
-          console.error(`Error al iniciar el frontend: ${error}`);
-          return;
-        }
-        console.log(`Frontend iniciado: ${stdout}`);
-      });
-      frontendStarted = true;
-    }
-    const checkServer = () => {
-      http.get('http://localhost:3000', (res) => {
-        if (res.statusCode === 200) {
-          win.loadURL('http://localhost:3000');
-        } else {
-          setTimeout(checkServer, 500);
-        }
-      }).on('error', () => {
-        setTimeout(checkServer, 500);
-      });
-    };
-    checkServer();
-  } else {
-    // In production, load the build folder
-    console.warn(__dirname)
-    const loadURL = path.join(__dirname, '../build/index.html');
-    if (fs.existsSync(loadURL)) {
-      console.warn('Existe el archivo')
-    }
-    console.warn(loadURL);
-    win.loadFile(loadURL);
-  }
 }
 
 function startBackEnd() {
@@ -95,6 +51,67 @@ function startBackEnd() {
       }
     }
   });
+}
+
+function createWindow() {
+  const isProduction = process.env.NODE_ENV !== 'development';
+
+  if (isProduction) {
+    // In production, use Express to serve the React build folder
+    const server = express();
+    const buildPath = path.join(__dirname, '../build');
+
+    // Serve static files from the React build folder
+    server.use(express.static(buildPath));
+
+    server.listen(41354, () => {
+      console.log('React app is now being served at http://localhost:41354');
+      
+      // Create the Electron window
+      const win = new BrowserWindow({
+        width: 800,
+        height: 600,
+        webPreferences: {
+          nodeIntegration: true,
+        },
+      });
+
+      // Load the app from the Express server
+      win.loadURL('http://localhost:41354');
+    });
+  } else {
+    // In development, load the app from React's dev server (localhost:3000)
+    const win = new BrowserWindow({
+      width: 800,
+      height: 600,
+      webPreferences: {
+        nodeIntegration: true,
+      },
+    });
+    if (!frontendStarted) {
+      exec('npm run start-frontend', (error, stdout, stderr) => {
+        if (error) {
+          console.error(`Error al iniciar el frontend: ${error}`);
+          return;
+        }
+        console.log(`Frontend iniciado: ${stdout}`);
+      });
+      frontendStarted = true;
+      win.loadURL('http://localhost:3000');
+    }
+    const checkServer = () => {
+      http.get('http://localhost:3000', (res) => {
+        if (res.statusCode === 200) {
+          win.loadURL('http://localhost:3000');
+        } else {
+          setTimeout(checkServer, 500);
+        }
+      }).on('error', () => {
+        setTimeout(checkServer, 500);
+      });
+    };
+    checkServer();
+  }
 }
 
 // When Electron has finished initializing, create the window
