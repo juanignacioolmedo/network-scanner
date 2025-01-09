@@ -8,6 +8,8 @@ const { DOMParser } = require('xmldom'); // Importar DOMParser de xmldom
 const app = express();
 const port = 3002;
 
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
+
 // Enable CORS
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));

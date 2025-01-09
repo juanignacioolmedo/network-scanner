@@ -1,3 +1,5 @@
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
+
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const { exec } = require('child_process');
@@ -8,6 +10,9 @@ const net = require('net'); // Required for checking port availability
 
 let frontendStarted = false;
 let backendStarted = false;
+
+
+app.commandLine.appendSwitch('ignore-certificate-errors');
 
 // Check if a port is in use
 function isPortInUse(port, callback) {
@@ -27,23 +32,16 @@ function isPortInUse(port, callback) {
 }
 
 function startBackEnd() {
-  
-
-  if (!backendStarted) {
-    console.warn('Ahora corro el backend')
-    exec('npm run start-backend &', (error, stdout, stderr) => {
-      if (error) {
-        console.error(stdout);
-        console.error(stderr);
-        console.error(`Error al iniciar el backend: ${error}`);
-        return;
-      }
-      console.log(`Backend iniciado: ${stdout}`);
-    });
-    backendStarted = true;
-  } else {
-    console.log('Backend server is already running.');
-  }
+  exec('npm run start-backend &', (error, stdout, stderr) => {
+    console.warn('')
+    if (error) {
+      console.error(stdout);
+      console.error(stderr);
+      console.error(`Error al iniciar el backend: ${error}`);
+      return;
+    }
+    console.log(`Backend iniciado: ${stdout}`);
+  });
 }
 
 function createWindow() {
@@ -92,7 +90,6 @@ function createWindow() {
     };
     checkServer();
   }
-  win.webContents.openDevTools(); // Open DevTools automatically
   win.on('closed', handleAppClose);
 }
 
