@@ -9,7 +9,7 @@
     "build": "npm run build-frontend && electron-builder",
     "dist": "electron-builder",
     "electron": "NODE_ENV=development electron .",
-    "start-backend": "node backend/server.js",
+    "start-backend": "node src/server.js",
     "start": "npm run electron",
     "build:windows": "electron-builder --win",
     "build:linux": "electron-builder --linux",
@@ -18,16 +18,20 @@
   },
   "dependencies": {
     "axios": "^0.21.1",
+    "browser-fs-access": "^0.35.0",
     "cors": "^2.8.5",
     "electron-is-dev": "^3.0.1",
     "express": "^4.17.1",
     "ini": "^5.0.0",
     "node-fetch": "^3.3.2",
-    "node-nmap": "^1.0.5",
+    "node-nmap": "^4.0.0",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1",
     "ping": "^0.4.4",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "xml2js": "^0.6.2"
+    "xml2js": "^0.6.2",
+    "xmldom": "^0.6.0"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
@@ -43,7 +47,8 @@
     "style-loader": "^4.0.0",
     "webpack": "^5.97.1",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^5.2.0"
+    "webpack-dev-server": "^5.2.0",
+    "webpack-node-externals": "^3.0.0"
   },
   "build": {
     "appId": "com.networkscanner.myapp",
