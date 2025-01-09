@@ -92,6 +92,7 @@ function createWindow() {
     };
     checkServer();
   }
+  win.webContents.openDevTools(); // Open DevTools automatically
   win.on('closed', handleAppClose);
 }
 
